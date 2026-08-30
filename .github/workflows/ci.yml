@@ -1,0 +1,72 @@
+# Тесты и статические проверки на каждый push и pull request.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Новый push в ту же ветку отменяет предыдущий прогон: старый результат всё
+# равно никому не нужен, а очередь он занимает.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Границы совпадают с requires-python и классификаторами пакета:
+        # обещаем ровно то, что проверено.
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - run: pytest -q
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - run: ruff check .
+
+      - run: mypy src
+
+  package:
+    # Собираем на каждом изменении, а не только на теге: сломанная сборка,
+    # найденная в день выпуска, задерживает выпуск.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install build twine
+
+      - run: python -m build
+
+      # Проверяет в том числе, отрендерится ли README на странице пакета.
+      - run: twine check dist/*

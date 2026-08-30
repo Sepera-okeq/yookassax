@@ -1,0 +1,38 @@
+# Проверки до коммита. Ставится один раз:
+#
+#     pip install pre-commit
+#     pre-commit install --hook-type pre-commit --hook-type pre-push
+#
+# ggshield требует ключ API в переменной окружения GITGUARDIAN_API_KEY либо
+# входа через `ggshield auth login`. Без ключа хук падает, и это правильно:
+# тихо пропущенная проверка секретов хуже её отсутствия, потому что создаёт
+# ложное чувство защиты.
+repos:
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.54.0
+    hooks:
+      - id: ggshield
+        stages: [pre-commit]
+      # Второй рубеж: секрет, добавленный через `commit --no-verify` или
+      # приехавший с чужой веткой, ловится до отправки на GitHub.
+      - id: ggshield-push
+        stages: [pre-push]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      # Ключ приватности или сертификат в репозитории клиента платёжного API
+      # это всегда ошибка, отдельная проверка дешевле разбора последствий.
+      - id: detect-private-key

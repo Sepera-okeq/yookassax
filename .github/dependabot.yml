@@ -1,0 +1,24 @@
+# Обновления зависимостей.
+#
+# Экшены обновляются потому, что версия в workflow приколочена тегом и сама
+# не сдвинется: без этого репозиторий годами ходит по устаревшим действиям.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+    # Единственная зависимость это httpx, и нижняя граница у неё намеренно
+    # широкая: приложение выбирает версию само. Поднимаем только dev-набор.
+    ignore:
+      - dependency-name: httpx
