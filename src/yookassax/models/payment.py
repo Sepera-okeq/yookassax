@@ -149,13 +149,16 @@ class PaymentMethod(Model):
     sbp_operation_id: str | None = None
     # Приходят только из /payment_methods, при привязке способа оплаты.
     confirmation: PaymentMethodConfirmation | None = None
-    holder: dict[str, Any] | None = None
+    # Магазин, для которого сохраняется способ оплаты. Поля те же, что у
+    # получателя платежа, поэтому модель одна.
+    holder: Recipient | None = None
     metadata: dict[str, Any] | None = None
 
     nested_models: ClassVar[dict[str, ModelClass]] = {
         "card": BankCardData,
         "payer_bank_details": PayerBankDetails,
         "confirmation": PaymentMethodConfirmation,
+        "holder": Recipient,
     }
 
     @classmethod
@@ -267,6 +270,7 @@ class PaymentMethodB2bSberbank(PaymentMethod):
         "card": BankCardData,
         "payer_bank_details": PayerBankDetails,
         "confirmation": PaymentMethodConfirmation,
+        "holder": Recipient,
         "vat_data": B2bSberbankVatData,
     }
 
@@ -285,6 +289,7 @@ class PaymentMethodSberLoan(PaymentMethod):
         "card": BankCardData,
         "payer_bank_details": PayerBankDetails,
         "confirmation": PaymentMethodConfirmation,
+        "holder": Recipient,
         "discount_amount": Amount,
     }
 
@@ -302,6 +307,7 @@ class PaymentMethodElectronicCertificate(PaymentMethod):
         "card": BankCardData,
         "payer_bank_details": PayerBankDetails,
         "confirmation": PaymentMethodConfirmation,
+        "holder": Recipient,
         "electronic_certificate": ElectronicCertificatePayment,
     }
     nested_lists: ClassVar[dict[str, ModelClass]] = {

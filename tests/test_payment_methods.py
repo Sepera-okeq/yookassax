@@ -126,3 +126,28 @@ def test_payment_carries_the_typed_method():
 def test_model_name_matches_the_type(type_name):
     """Имена моделей совпадают со схемами спецификации, это держит сверку."""
     assert PAYMENT_METHOD_MODELS[type_name].__name__.startswith("PaymentMethod")
+
+
+def test_holder_is_a_model():
+    """holder это магазин, для которого сохраняется способ оплаты."""
+    method = PaymentMethod.from_api(
+        {
+            "type": "bank_card",
+            "holder": {"account_id": "123", "gateway_id": "456"},
+        }
+    )
+
+    assert method.holder.account_id == "123"
+    assert method.holder.gateway_id == "456"
+
+
+def test_all_documented_payment_method_types_are_known():
+    """19 типов из объекта платежа в документации ЮKassa."""
+    documented = {
+        "bank_card", "yoo_money", "sberbank", "tinkoff_bank", "alfabank",
+        "alfa_pay", "sbp", "cash", "mobile_balance", "qiwi", "webmoney",
+        "wechat", "apple_pay", "google_pay", "installments", "sber_bnpl",
+        "b2b_sberbank", "sber_loan", "electronic_certificate",
+    }
+
+    assert set(PAYMENT_METHOD_MODELS) == documented

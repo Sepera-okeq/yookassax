@@ -141,6 +141,10 @@ Three types carry fields of their own: `sber_loan`, `electronic_certificate`
 and `b2b_sberbank`. The rest only have the common ones in the specification, so
 their models are empty - they exist for `isinstance` and editor hints.
 
+All 19 types appear **inside a payment object**. Only two can be saved
+through `payment_methods.create`: `bank_card` and `sbp` - the rest do not
+support binding.
+
 A type the library does not know yet is parsed into the base `PaymentMethod`: a
 new payment method must not break parsing of the payment.
 
