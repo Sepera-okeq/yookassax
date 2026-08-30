@@ -1,3 +1,5 @@
+![image project](https://github.com/Sepera-okeq/yookassax/blob/main/docs/image-yookassax.png)
+
 # yookassax
 
 Русский | [English](https://github.com/Sepera-okeq/yookassax/blob/main/README.en.md)
