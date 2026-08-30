@@ -1,0 +1,311 @@
+# yookassax
+
+A YooKassa client for Python in two modes: synchronous and asynchronous.
+Version 1.2. Requires Python 3.10+. The only dependency is httpx.
+
+This file is meant to be pasted into a language model's context: it describes
+the whole library so that code can be written against it without reading the
+sources.
+
+## Installation and imports
+
+    pip install yookassax
+
+    from yookassax import YooKassa          # synchronous client
+    from yookassax import AsyncYooKassa     # asynchronous client
+    from yookassax import webhooks          # notification parsing
+
+## Building a client
+
+Your own shop:
+
+    kassa = YooKassa(shop_id="123456", secret_key="live_...")
+
+Someone else's shop over OAuth:
+
+    kassa = YooKassa(oauth_token="token")
+
+The two ways cannot be combined, the client raises ConfigurationError.
+
+Optional arguments: api_url (default https://api.yookassa.ru/v3),
+timeout (30.0 seconds), retries (3 attempts including the first one).
+
+Both clients work as context managers and close their connections:
+
+    with YooKassa(shop_id="1", secret_key="k") as kassa: ...
+    async with AsyncYooKassa(shop_id="1", secret_key="k") as kassa: ...
+
+Without a context manager the synchronous client has close(), the
+asynchronous one aclose().
+
+## Which mode to pick
+
+In synchronous code use YooKassa. In any asynchronous application, FastAPI
+included, use AsyncYooKassa: a synchronous HTTP call inside an async handler
+stalls the whole worker, not just one request.
+
+Both modes expose the same set of methods. The only difference is await.
+
+## Resources and methods
+
+Client attributes, identical in both modes:
+
+    payments          create, get, capture, cancel, list, iterate
+    refunds           create, get, list, iterate
+    receipts          create, get, list, iterate
+    payouts           create, get, list, iterate
+    deals             create, get, list, iterate
+    payment_methods   create, get
+    invoices          create, get
+    personal_data     create, get
+    self_employed     create, get
+    pos_links         create, get, activate, deactivate, change_recipient
+    sbp_banks         list
+    webhooks          list, add, remove
+    settings          get
+
+Every mutating method takes an optional keyword argument idempotency_key.
+
+## Payments
+
+Creating one:
+
+    payment = kassa.payments.create({
+        "amount": {"value": "100.00", "currency": "RUB"},
+        "confirmation": {"type": "redirect", "return_url": "https://example.com/done"},
+        "capture": True,
+        "description": "Order 42",
+        "metadata": {"order_id": "42"},
+    })
+
+Asynchronously: payment = await kassa.payments.create({...})
+
+Useful fields and properties of the result:
+
+    payment.id                     string
+    payment.status                 pending, waiting_for_capture, succeeded, canceled
+    payment.amount.value           Decimal, not float
+    payment.amount.currency        string
+    payment.created_at             timezone aware datetime
+    payment.confirmation_url       link for the payer, or None
+    payment.metadata               dictionary
+    payment.is_pending             bool
+    payment.is_waiting_for_capture bool
+    payment.is_succeeded           bool
+    payment.is_canceled            bool
+    payment.extra("new_field")     a field the model does not know yet
+
+Two-stage payment (capture=False on creation):
+
+    kassa.payments.capture(payment.id)
+    kassa.payments.cancel(payment.id)
+
+Without a capture the held money goes back to the payer.
+
+Charging a saved payment method:
+
+    payment = kassa.payments.create({
+        "amount": {"value": "100.00", "currency": "RUB"},
+        "payment_method_id": saved_method_id,
+        "capture": True,
+    })
+
+No confirmation is needed here, there will be no redirect.
+
+## Refunds
+
+    refund = kassa.refunds.create({
+        "payment_id": payment.id,
+        "amount": {"value": "100.00", "currency": "RUB"},
+    })
+    refund.is_succeeded
+
+## Lists
+
+One page:
+
+    page = kassa.payments.list(status="succeeded", limit=50)
+    for payment in page:
+        ...
+    page.has_more        bool
+    page.next_cursor     string or None
+
+The next page: kassa.payments.list(status="succeeded", cursor=page.next_cursor)
+
+Everything, without paging by hand:
+
+    for payment in kassa.payments.iterate(status="succeeded"):
+        ...
+
+Asynchronously:
+
+    async for payment in kassa.payments.iterate(status="succeeded"):
+        ...
+
+Filters match the YooKassa API documentation. None values are not sent.
+
+## Notifications
+
+YooKassa does not sign the notification body. Processing order:
+
+    from yookassax import webhooks
+
+    # 1. Verify the sender address
+    if not webhooks.is_trusted_ip(ip):
+        return 403
+
+    # 2. Parse the body
+    notification = webhooks.parse(body)
+    notification.event               payment.succeeded and the like
+    notification.object              a Payment, Refund, Payout or Deal model
+    notification.object_type         payment, refund, payout, deal
+    notification.is_payment_succeeded
+    notification.is_payment_canceled
+    notification.is_refund_succeeded
+
+    # 3. Fetch the object through the API and decide by the API response
+    payment = kassa.payments.get(notification.object.id)
+    if payment.is_succeeded:
+        ...
+
+    # 4. Answer 200 quickly
+
+Step three is mandatory. The amount in the body directly drives money, and
+forging it is easier than it seems.
+
+Behind a reverse proxy the trustworthy sender address is the one the proxy
+sets itself, usually X-Real-IP from nginx. The leftmost X-Forwarded-For
+element is supplied by the client and must not be used.
+
+A FastAPI example:
+
+    @app.post("/webhook")
+    async def handle(request: Request):
+        if not webhooks.is_trusted_ip(request.headers.get("X-Real-IP", "")):
+            return Response(status_code=403)
+        notification = webhooks.parse(await request.json())
+        if notification.is_payment_succeeded:
+            payment = await kassa.payments.get(notification.object.id)
+            if payment.is_succeeded:
+                ...
+        return {"ok": True}
+
+Events: payment.succeeded, payment.waiting_for_capture, payment.canceled,
+refund.succeeded, payout.succeeded, payout.canceled, deal.closed.
+
+Managing subscriptions works only with an OAuth token:
+
+    kassa.webhooks.add("payment.succeeded", "https://example.com/webhook")
+    kassa.webhooks.list()
+    kassa.webhooks.remove(webhook_id)
+
+## Errors
+
+The hierarchy:
+
+    YooKassaError                the base class
+      ConfigurationError         the client was built incorrectly
+      TransportError             there was no response at all
+      APIError                   the API answered with an error
+        BadRequest         400
+        Unauthorized       401
+        Forbidden          403
+        NotFound           404
+        Gone               410
+        RateLimited        429
+        ResponseProcessing 202
+        ServerError        500
+
+APIError fields: status, code, description, parameter, request_id, payload.
+
+    try:
+        payment = kassa.payments.create({...})
+    except Forbidden:
+        # a common case: recurring payments are not enabled for the shop
+        ...
+    except BadRequest as error:
+        print(error.code, error.description, error.parameter)
+    except TransportError:
+        # the payment state is unknown, ask the API for the status
+        ...
+
+TransportError stands apart on purpose: if creating a payment failed with it,
+it is unknown whether the payment was created.
+
+## Idempotency
+
+The key is set automatically on every mutating request. A retry after a
+connection failure goes out with the same key, so no second payment appears.
+
+Supplying your own key makes sense when your own code may retry. A second call
+with the same key returns the payment that already exists:
+
+    kassa.payments.create(params, idempotency_key=f"order-{order_id}")
+
+## Retries
+
+Codes 202, 429 and 500 are retried, and so are network failures. The pause
+grows exponentially and jitters slightly. Codes 400 and 404 are not retried.
+
+Configuration: YooKassa(..., retries=5). The value counts all attempts, 1 means
+no retries.
+
+## Models
+
+Every model inherits Model and is built from the API response by from_api.
+Unknown fields do not break parsing: they stay in raw and are reachable through
+extra.
+
+Every unknown field raises UnknownFieldWarning (a UserWarning subclass) once:
+YooKassa has extended the response and the library is worth updating. The
+warning points at the calling line and is repeated at most once per
+model-and-field pair for the lifetime of the process, so a page of a hundred
+objects produces one line. Its text is in Russian, like every runtime message
+in the library.
+
+    import warnings
+    from yookassax import UnknownFieldWarning
+
+    warnings.filterwarnings("ignore", category=UnknownFieldWarning)   # silence
+    warnings.filterwarnings("error", category=UnknownFieldWarning)    # in tests
+
+Amounts are parsed into Decimal, dates into timezone aware datetime.
+
+The models: Amount, AuthorizationDetails, CancellationDetails, Confirmation,
+Deal, Invoice, InvoiceDetails, Me, Page, Payment, PaymentMethod, Payout,
+PersonalData, PosLink, Receipt, ReceiptItem, Recipient, Refund, SbpBank,
+SelfEmployed, Transfer, Webhook.
+
+## An endpoint the library does not have
+
+    from yookassax import Operation
+
+    operation = Operation(
+        method="POST",
+        path="/new_endpoint",
+        body={"key": "value"},
+        idempotent=True,
+    )
+    result = kassa.send(operation)          # synchronously
+    result = await kassa.send(operation)    # asynchronously
+
+## What not to do
+
+Do not trust the notification body as the source of truth about money.
+Do not take the leftmost X-Forwarded-For element to verify the sender address.
+Do not use float for amounts: only Decimal or a string.
+Do not build a client per request: it holds a connection pool.
+Do not call the synchronous YooKassa inside an asynchronous handler.
+
+## Differences from the official yookassa SDK
+
+The official SDK keeps credentials in Configuration at class level. When
+several shops are served from one process this is a race: two payments can
+overwrite each other's token, and a payment goes out through the wrong shop.
+Here credentials belong to the client instance.
+
+The official SDK is synchronous, requests underneath. It has no asynchronous
+mode.
+
+In the official SDK the idempotency key is generated but not reused on a retry,
+and there is no sender address check for notifications at all.

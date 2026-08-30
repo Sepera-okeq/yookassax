@@ -1,5 +1,7 @@
 # yookassax
 
+Русский | [English](README.en.md)
+
 Клиент [ЮKassa](https://yookassa.ru/developers/api) для Python в двух режимах:
 синхронном и асинхронном. Типизированные модели, разбор уведомлений,
 идемпотентность и повторы из коробки.
@@ -43,6 +45,29 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 Наборы методов у режимов одинаковые, это проверяется тестом. Переход с одного
 на другой сводится к добавлению `await`.
 
+## Примеры
+
+Все сценарии из официальной документации, оба режима, два языка:
+[русский](docs/examples/ru/README.md),
+[English](docs/examples/en/README.md).
+
+| | |
+|---|---|
+| [Настройка клиента](docs/examples/ru/01-configuration.md) | аутентификация, магазин, подписки |
+| [Платежи](docs/examples/ru/02-payments.md) | создание, подтверждение, отмена, списки |
+| [Возвраты](docs/examples/ru/03-refunds.md) | полные и частичные |
+| [Чеки](docs/examples/ru/04-receipts.md) | 54-ФЗ, маркированные товары |
+| [Сделки](docs/examples/ru/05-deals.md) | безопасная сделка целиком |
+| [Выплаты](docs/examples/ru/06-payouts.md) | карта, СБП, кошелёк, самозанятые |
+| [Самозанятые](docs/examples/ru/07-self-employed.md) | регистрация и подтверждение |
+| [Персональные данные](docs/examples/ru/08-personal-data.md) | получатели выплат |
+| [Банки СБП](docs/examples/ru/09-sbp-banks.md) | справочник |
+| [Счета](docs/examples/ru/10-invoices.md) | ссылка на оплату |
+| [Способы оплаты](docs/examples/ru/11-payment-methods.md) | подписки и автоплатежи |
+| [Кассовые ссылки](docs/examples/ru/12-pos-links.md) | статические QR-коды |
+| [Уведомления](docs/examples/ru/13-webhooks.md) | FastAPI, Django, Flask |
+| [Ошибки и повторы](docs/examples/ru/14-errors.md) | идемпотентность, обрывы связи |
+
 ## Чем отличается от официального SDK
 
 **Ключи хранятся в экземпляре клиента.** Официальный SDK держит их в
@@ -64,7 +89,12 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 
 **Модели типизированы и терпимы к новым полям.** ЮKassa добавляет поля в
 ответы; строгая модель превратила бы это в отказ обслуживать платежи. Всё
-неизвестное складывается в `raw` и доступно через `extra`.
+неизвестное складывается в `raw` и доступно через `extra`. Но не молча: на
+каждое такое поле один раз выдаётся `UnknownFieldWarning`, иначе о новом поле
+никто и не узнает.
+
+**Билдеров нет.** Тело запроса это обычный словарь: он принимает новые поля
+API сразу, а не после обновления библиотеки.
 
 ## Работа с платежами
 
@@ -139,7 +169,7 @@ async def handle(request: Request):
 ## Ошибки
 
 ```python
-from yookassax import BadRequest, Forbidden, NotFound, TransportError, YooKassaError
+from yookassax import BadRequest, Forbidden, TransportError, YooKassaError
 
 try:
     payment = kassa.payments.create({...})
@@ -158,11 +188,38 @@ except YooKassaError:
 `TransportError` стоит отдельно от остальных намеренно: если создание платежа
 упало с ним, неизвестно, создан платёж или нет.
 
+## Новые поля в ответах
+
+Поле, которого нет в модели, разбор не роняет, но и не скрывает:
+
+```python
+payment = kassa.payments.get(payment_id)
+# UnknownFieldWarning: Payment: в ответе API есть поля, которых нет в модели:
+# loyalty_bonus. Значения доступны через extra(), но, возможно, стоит обновить
+# yookassax.
+
+payment.extra("loyalty_bonus")
+```
+
+Предупреждение указывает на строку вашего кода и выдаётся один раз на пару
+"модель плюс поле" за жизнь процесса: страница из ста платежей даст одну
+строку, а не сто. Отключается штатным фильтром:
+
+```python
+import warnings
+from yookassax import UnknownFieldWarning
+
+warnings.filterwarnings("ignore", category=UnknownFieldWarning)
+```
+
 ## Доступные ресурсы
 
 `payments`, `refunds`, `receipts`, `payouts`, `webhooks`, `settings`,
 `payment_methods`, `deals`, `invoices`, `personal_data`, `self_employed`,
 `pos_links`, `sbp_banks`.
+
+Покрыты все маршруты официальной спецификации OpenAPI. Полнота проверяется
+тестом.
 
 ## OAuth
 
@@ -192,7 +249,8 @@ result = kassa.send(operation)
 ## Для ИИ-ассистентов
 
 В каталоге `docs` лежит [`llms.txt`](docs/llms.txt): полный справочник по
-библиотеке одним файлом, чтобы вставить в контекст модели.
+библиотеке одним файлом, чтобы вставить в контекст модели. Английская
+версия: [`llms.en.txt`](docs/llms.en.txt).
 
 ## Разработка
 
