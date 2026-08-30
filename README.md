@@ -73,6 +73,9 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 | [Уведомления](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/13-webhooks.md) | FastAPI, Django, Flask |
 | [Ошибки и повторы](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/14-errors.md) | идемпотентность, обрывы связи |
 | [Модели ответов](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/15-models.md) | все 73 модели и сверка со спецификацией |
+| [Партнёрская программа](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/16-partners-oauth.md) | OAuth, работа от имени чужого магазина |
+| [Коды ответа HTTP](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/17-http-codes.md) | что означает каждый и что делать |
+| [Тестовый магазин](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/18-testing.md) | отладка, подмена HTTP, живой прогон |
 
 ## Чем отличается от официального SDK
 
@@ -242,6 +245,10 @@ kassa = YooKassa(oauth_token="токен, выданный магазином")
 
 Одновременно с `shop_id` и `secret_key` не задаётся: клиент откажется
 собираться, чтобы не выбирать за вас.
+
+Как получить такой токен, подписаться на уведомления по API и что делать, когда
+магазин отозвал права, - в
+[примерах по партнёрской программе](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/16-partners-oauth.md).
 
 ## Эндпоинт, которого ещё нет в библиотеке
 

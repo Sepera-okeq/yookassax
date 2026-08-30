@@ -73,6 +73,9 @@ Every scenario from the official documentation, both modes, two languages:
 | [Notifications](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/13-webhooks.md) | FastAPI, Django, Flask |
 | [Errors and retries](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/14-errors.md) | idempotency, connection failures |
 | [Response models](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/15-models.md) | all 73 models and the specification check |
+| [Partner programme](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/16-partners-oauth.md) | OAuth, working on behalf of another shop |
+| [HTTP response codes](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/17-http-codes.md) | what each one means and what to do |
+| [The test shop](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/18-testing.md) | debugging, mocking HTTP, the live run |
 
 ## How this differs from the official SDK
 
@@ -246,6 +249,10 @@ kassa = YooKassa(oauth_token="the token the shop issued")
 
 It cannot be combined with `shop_id` and `secret_key`: the client refuses to be
 built rather than choose for you.
+
+How to obtain such a token, subscribe to notifications through the API and what
+to do when a shop revokes the grant is in the
+[partner programme guide](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/16-partners-oauth.md).
 
 ## An endpoint the library does not have yet
 

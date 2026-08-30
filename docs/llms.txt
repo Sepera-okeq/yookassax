@@ -196,13 +196,40 @@ idempotency_key.
         return {"ok": True}
 
 События: payment.succeeded, payment.waiting_for_capture, payment.canceled,
-refund.succeeded, payout.succeeded, payout.canceled, deal.closed.
+refund.succeeded, payout.succeeded, payout.canceled, deal.closed,
+payment_method.active (привязка способа оплаты на нулевую сумму, объект
+уведомления это PaymentMethod).
 
-Управление подписками работает только с OAuth-токеном:
+Управление подписками работает только с OAuth-токеном. У партнёрского
+приложения это единственный способ: личный кабинет ему недоступен, а с парой
+shop_id и secret_key API отвечает 401 Authentication type is not allowed.
+Подписка это отдельный объект на каждое событие, набор свой для каждого токена,
+уведомления приходят только по объектам этого приложения:
 
     kassa.webhooks.add("payment.succeeded", "https://example.com/webhook")
     kassa.webhooks.list()
     kassa.webhooks.remove(webhook_id)
+
+## Партнёрская программа и OAuth
+
+Приложение работает от имени чужого магазина по OAuth-токену, секретный ключ
+магазина ему не нужен. Порядок: зарегистрировать приложение на OAuth-сервере
+ЮKassa, увести пользователя на https://yookassa.ru/oauth/v2/authorize с
+response_type=code, client_id и одноразовым state, получить код подтверждения
+(в Callback URL или вводом вручную), обменять его на токен POST-запросом на
+https://yookassa.ru/oauth/v2/token с basic-авторизацией client_id и
+client_secret. Код живёт 5 минут, токен 5 лет.
+
+Обмен идёт на OAuth-сервере, а не в API /v3, поэтому в библиотеке его нет:
+делается напрямую через httpx. Готовый токен передаётся клиенту:
+
+    kassa = YooKassa(oauth_token=token)
+
+Unauthorized при работе означает "токен мёртв, нужна новая выдача прав",
+Forbidden - "право не запрашивалось при регистрации приложения". Это разные
+сообщения для пользователя.
+
+Полностью: docs/examples/ru/16-partners-oauth.md.
 
 ## Ошибки
 

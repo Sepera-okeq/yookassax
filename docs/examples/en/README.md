@@ -25,6 +25,9 @@ difference between them is `await`; the method sets are identical.
 | [13-webhooks.md](13-webhooks.md) | Incoming notifications: FastAPI, Django, Flask |
 | [14-errors.md](14-errors.md) | Errors, retries, idempotency |
 | [15-models.md](15-models.md) | Response models: the full map and its link to the specification |
+| [16-partners-oauth.md](16-partners-oauth.md) | Partner programme: OAuth, working on behalf of another shop |
+| [17-http-codes.md](17-http-codes.md) | HTTP response codes and what to do with each |
+| [18-testing.md](18-testing.md) | The test shop, mocking HTTP, the live run |
 
 All examples assume the client is already created:
 

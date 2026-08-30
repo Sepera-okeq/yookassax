@@ -196,13 +196,41 @@ A FastAPI example:
         return {"ok": True}
 
 Events: payment.succeeded, payment.waiting_for_capture, payment.canceled,
-refund.succeeded, payout.succeeded, payout.canceled, deal.closed.
+refund.succeeded, payout.succeeded, payout.canceled, deal.closed,
+payment_method.active (a zero-amount payment method binding; the notification
+object is a PaymentMethod).
 
-Managing subscriptions works only with an OAuth token:
+Managing subscriptions works only with an OAuth token. For a partner
+application it is the only way: it has no dashboard, and with a shop_id and
+secret_key pair the API answers 401 Authentication type is not allowed. A
+subscription is one object per event, the set belongs to the token, and
+notifications cover only that application's objects:
 
     kassa.webhooks.add("payment.succeeded", "https://example.com/webhook")
     kassa.webhooks.list()
     kassa.webhooks.remove(webhook_id)
+
+## Partner programme and OAuth
+
+An application works on behalf of another shop with an OAuth token and never
+sees that shop's secret key. The order: register the application on the
+YooKassa OAuth server, send the user to https://yookassa.ru/oauth/v2/authorize
+with response_type=code, client_id and a single-use state, receive the
+confirmation code (via a Callback URL or typed in by hand), exchange it for a
+token with a POST to https://yookassa.ru/oauth/v2/token using client_id and
+client_secret as basic auth. The code lives 5 minutes, the token 5 years.
+
+The exchange happens on the OAuth server rather than in the /v3 API, so the
+library does not cover it: do it directly with httpx. The resulting token goes
+to the client:
+
+    kassa = YooKassa(oauth_token=token)
+
+During work, Unauthorized means "the token is dead, a new grant is needed" and
+Forbidden means "the permission was never requested at registration". Those are
+different messages for the user.
+
+In full: docs/examples/en/16-partners-oauth.md.
 
 ## Errors
 
