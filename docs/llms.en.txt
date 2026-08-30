@@ -43,6 +43,12 @@ Both clients work as context managers and close their connections:
 Without a context manager the synchronous client has close(), the
 asynchronous one aclose().
 
+The asynchronous client is bound to the event loop it was opened in: the
+connection pool lives in that loop's transports. In another loop the same client
+fails with RuntimeError: Event loop is closed. This matters for Celery: every
+task runs through asyncio.run, that is in its own loop, so a client must not
+outlive the task and a client cache has to be keyed by loop.
+
 ## Which mode to pick
 
 In synchronous code use YooKassa. In any asynchronous application, FastAPI

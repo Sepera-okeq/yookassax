@@ -3,6 +3,7 @@
 * [Authentication](#authentication)
 * [Client options](#client-options)
 * [Closing connections](#closing-connections)
+* [The client and the event loop](#the-client-and-the-event-loop)
 * [Shop information](#shop-information)
 * [Managing notification subscriptions](#managing-notification-subscriptions)
 * [Several shops in one process](#several-shops-in-one-process)
@@ -94,6 +95,50 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 ```
+
+## The client and the event loop
+
+The asynchronous client holds a connection pool, and the pool is bound to the
+event loop it was opened in: the sockets live in that loop's transports. Reusing
+a client in another loop does not work - the first request fails with
+`RuntimeError: Event loop is closed`.
+
+In an ordinary application this never shows: there is one loop for the life of
+the process. But Celery runs every task through `asyncio.run`, that is in a loop
+of its own, which it then closes.
+
+```python
+# Wrong: the client outlives the first task's loop.
+_client = AsyncYooKassa(oauth_token=token)
+
+
+@celery_app.task
+def charge():
+    asyncio.run(_charge())          # the second call fails
+```
+
+The client must not outlive the loop:
+
+```python
+@celery_app.task
+def charge():
+    asyncio.run(_charge())
+
+
+async def _charge():
+    async with AsyncYooKassa(oauth_token=token) as kassa:
+        await kassa.payments.create({...})
+```
+
+If clients are cached (one per shop, say), the cache has to be keyed by loop and
+closed before that loop goes away:
+
+```python
+loop = asyncio.get_running_loop()
+client = cache.setdefault(loop, {}).get(token)
+```
+
+None of this applies to the synchronous client: it has no event loop.
 
 ## Shop information
 
