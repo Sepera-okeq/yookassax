@@ -1,6 +1,6 @@
 # yookassax
 
-[Русский](README.md) | English
+[Русский](https://github.com/Sepera-okeq/yookassax/blob/main/README.md) | English
 
 > **Unofficial library.** The project is not affiliated with YooKassa or
 > YooMoney, is not supported by them and is not their product. The official SDK
@@ -53,25 +53,25 @@ from one to the other comes down to adding `await`.
 ## Examples
 
 Every scenario from the official documentation, both modes, two languages:
-[English](docs/examples/en/README.md),
-[русский](docs/examples/ru/README.md).
+[English](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/README.md),
+[русский](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/README.md).
 
 | | |
 |---|---|
-| [Client configuration](docs/examples/en/01-configuration.md) | authentication, shop, subscriptions |
-| [Payments](docs/examples/en/02-payments.md) | create, capture, cancel, list |
-| [Refunds](docs/examples/en/03-refunds.md) | full and partial |
-| [Receipts](docs/examples/en/04-receipts.md) | fiscalization, marked goods |
-| [Deals](docs/examples/en/05-deals.md) | safe deal end to end |
-| [Payouts](docs/examples/en/06-payouts.md) | card, SBP, wallet, self-employed |
-| [Self-employed](docs/examples/en/07-self-employed.md) | registration and confirmation |
-| [Personal data](docs/examples/en/08-personal-data.md) | payout recipients |
-| [SBP banks](docs/examples/en/09-sbp-banks.md) | directory |
-| [Invoices](docs/examples/en/10-invoices.md) | payment link |
-| [Payment methods](docs/examples/en/11-payment-methods.md) | subscriptions and recurring charges |
-| [POS links](docs/examples/en/12-pos-links.md) | static QR codes |
-| [Notifications](docs/examples/en/13-webhooks.md) | FastAPI, Django, Flask |
-| [Errors and retries](docs/examples/en/14-errors.md) | idempotency, connection failures |
+| [Client configuration](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/01-configuration.md) | authentication, shop, subscriptions |
+| [Payments](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/02-payments.md) | create, capture, cancel, list |
+| [Refunds](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/03-refunds.md) | full and partial |
+| [Receipts](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/04-receipts.md) | fiscalization, marked goods |
+| [Deals](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/05-deals.md) | safe deal end to end |
+| [Payouts](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/06-payouts.md) | card, SBP, wallet, self-employed |
+| [Self-employed](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/07-self-employed.md) | registration and confirmation |
+| [Personal data](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/08-personal-data.md) | payout recipients |
+| [SBP banks](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/09-sbp-banks.md) | directory |
+| [Invoices](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/10-invoices.md) | payment link |
+| [Payment methods](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/11-payment-methods.md) | subscriptions and recurring charges |
+| [POS links](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/12-pos-links.md) | static QR codes |
+| [Notifications](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/13-webhooks.md) | FastAPI, Django, Flask |
+| [Errors and retries](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/14-errors.md) | idempotency, connection failures |
 
 ## How this differs from the official SDK
 
@@ -256,9 +256,9 @@ result = kassa.send(operation)
 
 ## For AI assistants
 
-The `docs` directory holds [`llms.en.txt`](docs/llms.en.txt): a complete
+The `docs` directory holds [`llms.en.txt`](https://github.com/Sepera-okeq/yookassax/blob/main/docs/llms.en.txt): a complete
 reference to the library in a single file, ready to paste into a model's
-context. The Russian version is [`llms.txt`](docs/llms.txt).
+context. The Russian version is [`llms.txt`](https://github.com/Sepera-okeq/yookassax/blob/main/docs/llms.txt).
 
 ## Development
 

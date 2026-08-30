@@ -1,6 +1,6 @@
 # yookassax
 
-Русский | [English](README.en.md)
+Русский | [English](https://github.com/Sepera-okeq/yookassax/blob/main/README.en.md)
 
 > **Неофициальная библиотека.** Проект не связан с ЮKassa и ЮMoney, ими не
 > поддерживается и их продуктом не является. Официальный SDK лежит
@@ -53,25 +53,25 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 ## Примеры
 
 Все сценарии из официальной документации, оба режима, два языка:
-[русский](docs/examples/ru/README.md),
-[English](docs/examples/en/README.md).
+[русский](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/README.md),
+[English](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/README.md).
 
 | | |
 |---|---|
-| [Настройка клиента](docs/examples/ru/01-configuration.md) | аутентификация, магазин, подписки |
-| [Платежи](docs/examples/ru/02-payments.md) | создание, подтверждение, отмена, списки |
-| [Возвраты](docs/examples/ru/03-refunds.md) | полные и частичные |
-| [Чеки](docs/examples/ru/04-receipts.md) | 54-ФЗ, маркированные товары |
-| [Сделки](docs/examples/ru/05-deals.md) | безопасная сделка целиком |
-| [Выплаты](docs/examples/ru/06-payouts.md) | карта, СБП, кошелёк, самозанятые |
-| [Самозанятые](docs/examples/ru/07-self-employed.md) | регистрация и подтверждение |
-| [Персональные данные](docs/examples/ru/08-personal-data.md) | получатели выплат |
-| [Банки СБП](docs/examples/ru/09-sbp-banks.md) | справочник |
-| [Счета](docs/examples/ru/10-invoices.md) | ссылка на оплату |
-| [Способы оплаты](docs/examples/ru/11-payment-methods.md) | подписки и автоплатежи |
-| [Кассовые ссылки](docs/examples/ru/12-pos-links.md) | статические QR-коды |
-| [Уведомления](docs/examples/ru/13-webhooks.md) | FastAPI, Django, Flask |
-| [Ошибки и повторы](docs/examples/ru/14-errors.md) | идемпотентность, обрывы связи |
+| [Настройка клиента](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/01-configuration.md) | аутентификация, магазин, подписки |
+| [Платежи](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/02-payments.md) | создание, подтверждение, отмена, списки |
+| [Возвраты](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/03-refunds.md) | полные и частичные |
+| [Чеки](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/04-receipts.md) | 54-ФЗ, маркированные товары |
+| [Сделки](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/05-deals.md) | безопасная сделка целиком |
+| [Выплаты](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/06-payouts.md) | карта, СБП, кошелёк, самозанятые |
+| [Самозанятые](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/07-self-employed.md) | регистрация и подтверждение |
+| [Персональные данные](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/08-personal-data.md) | получатели выплат |
+| [Банки СБП](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/09-sbp-banks.md) | справочник |
+| [Счета](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/10-invoices.md) | ссылка на оплату |
+| [Способы оплаты](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/11-payment-methods.md) | подписки и автоплатежи |
+| [Кассовые ссылки](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/12-pos-links.md) | статические QR-коды |
+| [Уведомления](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/13-webhooks.md) | FastAPI, Django, Flask |
+| [Ошибки и повторы](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/14-errors.md) | идемпотентность, обрывы связи |
 
 ## Чем отличается от официального SDK
 
@@ -253,9 +253,9 @@ result = kassa.send(operation)
 
 ## Для ИИ-ассистентов
 
-В каталоге `docs` лежит [`llms.txt`](docs/llms.txt): полный справочник по
+В каталоге `docs` лежит [`llms.txt`](https://github.com/Sepera-okeq/yookassax/blob/main/docs/llms.txt): полный справочник по
 библиотеке одним файлом, чтобы вставить в контекст модели. Английская
-версия: [`llms.en.txt`](docs/llms.en.txt).
+версия: [`llms.en.txt`](https://github.com/Sepera-okeq/yookassax/blob/main/docs/llms.en.txt).
 
 ## Разработка
 
