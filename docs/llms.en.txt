@@ -1,7 +1,7 @@
 # yookassax
 
 An unofficial YooKassa client for Python in two modes: synchronous and
-asynchronous. Version 2.2. Requires Python 3.10+. The only dependency is httpx.
+asynchronous. Version 2.3. Requires Python 3.10+. The only dependency is httpx.
 
 The library is unofficial: it is not affiliated with YooKassa or YooMoney, is
 not supported by them and is not their product. The official SDK is called
@@ -282,6 +282,20 @@ grows exponentially and jitters slightly. Codes 400 and 404 are not retried.
 
 Configuration: YooKassa(..., retries=5). The value counts all attempts, 1 means
 no retries.
+
+## Logs
+
+Every API call is written through the standard logging module to the
+"yookassax" logger: loguru picks the records up with its InterceptHandler, no
+separate support needed. INFO is method, path, status, duration and request id;
+WARNING is errors, retries and dropped connections; DEBUG adds headers and
+bodies.
+
+    import logging
+    logging.getLogger("yookassax").setLevel(logging.INFO)
+
+The Authorization header never reaches the log, and bodies only at DEBUG: they
+carry the payer's personal data. Details: docs/examples/en/19-logging.md.
 
 ## Models
 

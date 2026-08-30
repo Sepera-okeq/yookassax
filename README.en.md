@@ -76,6 +76,7 @@ Every scenario from the official documentation, both modes, two languages:
 | [Partner programme](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/16-partners-oauth.md) | OAuth, working on behalf of another shop |
 | [HTTP response codes](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/17-http-codes.md) | what each one means and what to do |
 | [The test shop](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/18-testing.md) | debugging, mocking HTTP, the live run |
+| [Logs](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/19-logging.md) | logging, loguru, secrets never reach the log |
 
 ## How this differs from the official SDK
 
@@ -229,6 +230,26 @@ from yookassax import UnknownFieldWarning
 
 warnings.filterwarnings("ignore", category=UnknownFieldWarning)
 ```
+
+## Logs
+
+Every API call is written through the standard `logging` module to the
+`yookassax` logger. loguru applications need no separate support: their
+`InterceptHandler` picks the records up.
+
+```python
+import logging
+
+logging.getLogger("yookassax").setLevel(logging.INFO)
+```
+
+```
+ЮKassa ответ: POST /payments -> 200 за 0.412 c, id: 3225ad37-000f-5001-8000-108ff2fd923d
+ЮKassa повтор: POST /payments, попытка 2 через 0.503 c, причина: ServerError
+```
+
+The `Authorization` header never reaches the log, and request and response
+bodies only at `DEBUG`: they carry the payer's personal data.
 
 ## Available resources
 

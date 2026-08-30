@@ -28,6 +28,7 @@ difference between them is `await`; the method sets are identical.
 | [16-partners-oauth.md](16-partners-oauth.md) | Partner programme: OAuth, working on behalf of another shop |
 | [17-http-codes.md](17-http-codes.md) | HTTP response codes and what to do with each |
 | [18-testing.md](18-testing.md) | The test shop, mocking HTTP, the live run |
+| [19-logging.md](19-logging.md) | API call logs, loguru, what never reaches the log |
 
 All examples assume the client is already created:
 

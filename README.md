@@ -78,6 +78,7 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 | [Партнёрская программа](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/16-partners-oauth.md) | OAuth, работа от имени чужого магазина |
 | [Коды ответа HTTP](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/17-http-codes.md) | что означает каждый и что делать |
 | [Тестовый магазин](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/18-testing.md) | отладка, подмена HTTP, живой прогон |
+| [Логи](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/19-logging.md) | logging, loguru, секреты в лог не уходят |
 
 ## Чем отличается от официального SDK
 
@@ -227,6 +228,26 @@ from yookassax import UnknownFieldWarning
 
 warnings.filterwarnings("ignore", category=UnknownFieldWarning)
 ```
+
+## Логи
+
+Каждое обращение к API пишется стандартным `logging` в логгер `yookassax`.
+Приложениям на loguru отдельная поддержка не нужна: записи подхватывает
+`InterceptHandler`.
+
+```python
+import logging
+
+logging.getLogger("yookassax").setLevel(logging.INFO)
+```
+
+```
+ЮKassa ответ: POST /payments -> 200 за 0.412 c, id: 3225ad37-000f-5001-8000-108ff2fd923d
+ЮKassa повтор: POST /payments, попытка 2 через 0.503 c, причина: ServerError
+```
+
+Заголовок `Authorization` в лог не попадает никогда, тела запроса и ответа —
+только на `DEBUG`: там персональные данные плательщика.
 
 ## Доступные ресурсы
 
