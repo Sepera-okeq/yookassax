@@ -6,11 +6,24 @@ import pytest
 
 from yookassax import AsyncYooKassa, YooKassa
 from yookassax.retry import RetryPolicy
+from yookassax.unknown_fields import forget_unknown_fields
 
 API_BASE_URL = "https://api.yookassa.ru/v3"
 
 # Пауза между повторами в тестах не нужна: она только замедляет прогон.
 FAST_RETRY = RetryPolicy(attempts=3, backoff=0.001, max_backoff=0.001)
+
+
+@pytest.fixture(autouse=True)
+def forget_reported_fields():
+    """Забыть предупреждения предыдущего теста.
+
+    О каждом неизвестном поле говорится один раз за процесс, поэтому без
+    сброса тест, идущий вторым, предупреждения уже не увидит.
+    """
+    forget_unknown_fields()
+    yield
+    forget_unknown_fields()
 
 
 @pytest.fixture

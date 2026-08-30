@@ -40,7 +40,9 @@
 Повторы на кодах 202, 429 и 500 с экспоненциальной паузой.
 
 Модели типизированы и терпимы к новым полям API: неизвестное складывается в
-raw и доступно через метод extra.
+raw и доступно через метод extra. О каждом таком поле один раз выдаётся
+UnknownFieldWarning: значит, ЮKassa расширила ответ и стоит обновить
+библиотеку.
 """
 
 from . import webhooks
@@ -85,6 +87,7 @@ from .models import (
 )
 from .operation import Operation
 from .retry import RetryPolicy
+from .unknown_fields import UnknownFieldWarning
 
 __all__ = [
     "__version__",
@@ -106,6 +109,8 @@ __all__ = [
     "TransportError",
     "Unauthorized",
     "YooKassaError",
+    # предупреждения
+    "UnknownFieldWarning",
     # модели
     "Amount",
     "AuthorizationDetails",

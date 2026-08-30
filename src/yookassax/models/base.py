@@ -8,7 +8,8 @@
 
 Неизвестные поля не роняют разбор. ЮKassa добавляет поля в ответы, и строгая
 модель превратила бы это в отказ обслуживать платежи. Всё, чего нет в модели,
-остаётся в словаре raw, а метод extra даёт к нему доступ.
+остаётся в словаре raw, а метод extra даёт к нему доступ. Молча это не
+проходит: на каждое такое поле один раз выдаётся UnknownFieldWarning.
 """
 
 from __future__ import annotations
@@ -18,6 +19,8 @@ from dataclasses import dataclass, field, fields
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any, ClassVar, TypeVar
+
+from ..unknown_fields import warn_unknown_fields
 
 __all__ = ["Model", "ModelClass", "parse_datetime", "parse_decimal"]
 
@@ -89,6 +92,10 @@ class Model:
         data = dict(payload or {})
         known_names = {f.name for f in fields(cls)} - {"raw"}
         kwargs: dict[str, Any] = {}
+
+        unknown = data.keys() - known_names
+        if unknown:
+            warn_unknown_fields(cls.__name__, unknown)
 
         for name in known_names:
             if name not in data:
