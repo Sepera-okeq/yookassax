@@ -24,6 +24,7 @@ difference between them is `await`; the method sets are identical.
 | [12-pos-links.md](12-pos-links.md) | POS links |
 | [13-webhooks.md](13-webhooks.md) | Incoming notifications: FastAPI, Django, Flask |
 | [14-errors.md](14-errors.md) | Errors, retries, idempotency |
+| [15-models.md](15-models.md) | Response models: the full map and its link to the specification |
 
 All examples assume the client is already created:
 

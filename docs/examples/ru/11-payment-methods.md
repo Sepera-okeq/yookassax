@@ -6,6 +6,7 @@
 * [Сохранение способа оплаты](#сохранение-способа-оплаты)
 * [Сохранение при первом платеже](#сохранение-при-первом-платеже)
 * [Информация о способе оплаты](#информация-о-способе-оплаты)
+* [Типы способов оплаты](#типы-способов-оплаты)
 * [Списание по сохранённому способу](#списание-по-сохранённому-способу)
 
 Магазину должны быть подключены рекуррентные платежи. Иначе ЮKassa ответит 403
@@ -85,6 +86,64 @@ method.saved
 method.title     # например "Bank card *4444"
 method.card      # маска карты, срок действия, банк-эмитент
 ```
+
+## Типы способов оплаты
+
+Способ оплаты разбирается в модель своего типа, поэтому поля конкретного
+способа доступны сразу, без заглядывания в `raw`.
+
+```python
+from yookassax import (
+    PaymentMethodBankCard,
+    PaymentMethodElectronicCertificate,
+    PaymentMethodSberLoan,
+)
+
+payment = kassa.payments.get(payment_id)
+method = payment.payment_method
+
+if isinstance(method, PaymentMethodBankCard):
+    print(method.card["last4"])
+
+elif isinstance(method, PaymentMethodSberLoan):
+    print(method.loan_option)        # loan, installments_3 и подобные
+    print(method.discount_amount)    # скидка за рассрочку
+    print(method.suspended_until)    # конец периода охлаждения
+
+elif isinstance(method, PaymentMethodElectronicCertificate):
+    print(method.articles)           # корзина, одобренная к оплате
+```
+
+Все 19 типов из спецификации:
+
+| Модель | `type` |
+|---|---|
+| `PaymentMethodBankCard` | `bank_card` |
+| `PaymentMethodYooMoney` | `yoo_money` |
+| `PaymentMethodSberbank` | `sberbank` |
+| `PaymentMethodSberLoan` | `sber_loan` |
+| `PaymentMethodSberBnpl` | `sber_bnpl` |
+| `PaymentMethodB2bSberbank` | `b2b_sberbank` |
+| `PaymentMethodTinkoffBank` | `tinkoff_bank` |
+| `PaymentMethodAlfabank` | `alfabank` |
+| `PaymentMethodAlfaPay` | `alfa_pay` |
+| `PaymentMethodSbp` | `sbp` |
+| `PaymentMethodElectronicCertificate` | `electronic_certificate` |
+| `PaymentMethodInstallments` | `installments` |
+| `PaymentMethodCash` | `cash` |
+| `PaymentMethodMobileBalance` | `mobile_balance` |
+| `PaymentMethodQiwi` | `qiwi` |
+| `PaymentMethodWebmoney` | `webmoney` |
+| `PaymentMethodWeChat` | `wechat` |
+| `PaymentMethodApplePay` | `apple_pay` |
+| `PaymentMethodGooglePay` | `google_pay` |
+
+Свои поля есть у трёх типов: `sber_loan`, `electronic_certificate` и
+`b2b_sberbank`. У остальных в спецификации только общие, и модели у них
+пустые — они нужны для `isinstance` и подсказок редактора.
+
+Тип, которого библиотека ещё не знает, разбирается в базовый `PaymentMethod`:
+новый способ оплаты не должен ронять разбор платежа.
 
 ## Списание по сохранённому способу
 

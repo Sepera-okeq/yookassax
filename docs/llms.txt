@@ -1,7 +1,7 @@
 # yookassax
 
 Неофициальный клиент ЮKassa для Python в двух режимах: синхронном и
-асинхронном. Версия 1.2. Требует Python 3.10+. Единственная зависимость: httpx.
+асинхронном. Версия 2.0. Требует Python 3.10+. Единственная зависимость: httpx.
 
 Библиотека неофициальная: с ЮKassa и ЮMoney не связана, ими не
 поддерживается и их продуктом не является. Официальный SDK называется
@@ -274,10 +274,42 @@ UserWarning): значит, ЮKassa расширила ответ и стоит 
 
 Суммы разбираются в Decimal, даты в datetime с часовым поясом.
 
-Список моделей: Amount, AuthorizationDetails, CancellationDetails,
+Все объекты ответов разбираются в модели, словарей в ответах не остаётся:
+dict есть только у metadata и holder, где произвольное содержимое обещает сама
+спецификация. Моделей 73, полнота проверяется тестами по спецификации.
+
+Список моделей: Amount, AuthorizationDetails, BankCardData, BankCardProduct,
+CancellationDetails,
 Confirmation, Deal, Invoice, InvoiceDetails, Me, Page, Payment, PaymentMethod,
 Payout, PersonalData, PosLink, Receipt, ReceiptItem, Recipient, Refund,
-SbpBank, SelfEmployed, Transfer, Webhook.
+SbpBank, SelfEmployed, Settlement, ThreeDSecureDetails, Transfer, Webhook,
+PayerBankDetails, PaymentDealInfo, PaymentMethodConfirmation, RefundMethod,
+RefundSource, RefundDealInfo, RefundAuthorizationDetails, PayoutDestination,
+PayoutCardData, PayoutDealInfo, PayoutSelfEmployedInfo, IncomeReceipt,
+ReceiptItemSupplier, IndustryDetails, OperationalDetails, MarkCodeInfo,
+MarkQuantity, LineItem, DeliveryMethod, InvoicePaymentDetails, PosLinkPayment,
+FiscalizationData, B2bSberbankVatData, ElectronicCertificate,
+ElectronicCertificatePayment, ElectronicCertificateApprovedPaymentArticle,
+ElectronicCertificateRefundArticle, ElectronicCertificateRefundData.
+
+Вложенные объекты типизированы: payment.payment_method.card это BankCardData,
+payment.deal это PaymentDealInfo с расчётами, refund.refund_method это
+RefundMethod, payout.payout_destination это PayoutDestination, у позиции чека
+supplier, mark_code_info и mark_quantity тоже модели. Полная карта:
+docs/examples/ru/15-models.md.
+
+Способ оплаты разбирается в модель своего типа: PaymentMethodBankCard,
+PaymentMethodYooMoney, PaymentMethodSberbank, PaymentMethodSberLoan,
+PaymentMethodSberBnpl, PaymentMethodB2bSberbank, PaymentMethodTinkoffBank,
+PaymentMethodAlfabank, PaymentMethodAlfaPay, PaymentMethodSbp,
+PaymentMethodElectronicCertificate, PaymentMethodInstallments,
+PaymentMethodCash, PaymentMethodMobileBalance, PaymentMethodQiwi,
+PaymentMethodWebmoney, PaymentMethodWeChat, PaymentMethodApplePay,
+PaymentMethodGooglePay. Все наследуют PaymentMethod, различать через
+isinstance. Свои поля есть у трёх: sber_loan (loan_option, discount_amount,
+suspended_until), electronic_certificate (electronic_certificate, articles),
+b2b_sberbank (payment_purpose, vat_data). Неизвестный тип разбирается в
+базовый PaymentMethod.
 
 ## Эндпоинт, которого нет в библиотеке
 

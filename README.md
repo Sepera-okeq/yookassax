@@ -72,6 +72,7 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 | [Кассовые ссылки](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/12-pos-links.md) | статические QR-коды |
 | [Уведомления](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/13-webhooks.md) | FastAPI, Django, Flask |
 | [Ошибки и повторы](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/14-errors.md) | идемпотентность, обрывы связи |
+| [Модели ответов](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/15-models.md) | все 73 модели и сверка со спецификацией |
 
 ## Чем отличается от официального SDK
 
@@ -91,6 +92,11 @@ async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
 **Повторы** на кодах 202, 429 и 500 с экспоненциальной паузой и дрожанием.
 Ошибки данных (400, 404) не повторяются: второй такой же запрос даст тот же
 ответ.
+
+**Способ оплаты разбирается в модель своего типа.** Все 19 из спецификации:
+`PaymentMethodBankCard`, `PaymentMethodSberLoan`,
+`PaymentMethodElectronicCertificate` и так далее. Различать через `isinstance`,
+[подробности](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/ru/11-payment-methods.md#типы-способов-оплаты).
 
 **Модели типизированы и терпимы к новым полям.** ЮKassa добавляет поля в
 ответы; строгая модель превратила бы это в отказ обслуживать платежи. Всё

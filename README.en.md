@@ -72,6 +72,7 @@ Every scenario from the official documentation, both modes, two languages:
 | [POS links](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/12-pos-links.md) | static QR codes |
 | [Notifications](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/13-webhooks.md) | FastAPI, Django, Flask |
 | [Errors and retries](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/14-errors.md) | idempotency, connection failures |
+| [Response models](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/15-models.md) | all 73 models and the specification check |
 
 ## How this differs from the official SDK
 
@@ -92,6 +93,12 @@ appears.
 **Retries** on 202, 429 and 500 with exponential backoff and jitter. Request
 errors (400, 404) are not retried: an identical second request gives an
 identical answer.
+
+**A payment method is parsed into the model of its own type.** All 19 from the
+specification: `PaymentMethodBankCard`, `PaymentMethodSberLoan`,
+`PaymentMethodElectronicCertificate` and so on. Tell them apart with
+`isinstance`,
+[details](https://github.com/Sepera-okeq/yookassax/blob/main/docs/examples/en/11-payment-methods.md#payment-method-types).
 
 **Models are typed and tolerant of new fields.** YooKassa adds fields to
 responses; a strict model would turn that into a refusal to serve payments.

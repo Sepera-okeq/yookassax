@@ -1,7 +1,7 @@
 # yookassax
 
 An unofficial YooKassa client for Python in two modes: synchronous and
-asynchronous. Version 1.2. Requires Python 3.10+. The only dependency is httpx.
+asynchronous. Version 2.0. Requires Python 3.10+. The only dependency is httpx.
 
 The library is unofficial: it is not affiliated with YooKassa or YooMoney, is
 not supported by them and is not their product. The official SDK is called
@@ -276,10 +276,43 @@ in the library.
 
 Amounts are parsed into Decimal, dates into timezone aware datetime.
 
-The models: Amount, AuthorizationDetails, CancellationDetails, Confirmation,
+Every object in a response is parsed into a model; no dictionaries are left:
+dict appears only for metadata and holder, where the specification itself
+promises arbitrary content. There are 73 models, and their completeness is
+checked against the specification by tests.
+
+The models: Amount, AuthorizationDetails, BankCardData, BankCardProduct,
+CancellationDetails, Confirmation,
 Deal, Invoice, InvoiceDetails, Me, Page, Payment, PaymentMethod, Payout,
 PersonalData, PosLink, Receipt, ReceiptItem, Recipient, Refund, SbpBank,
-SelfEmployed, Transfer, Webhook.
+SelfEmployed, Settlement, ThreeDSecureDetails, Transfer, Webhook,
+PayerBankDetails, PaymentDealInfo, PaymentMethodConfirmation, RefundMethod,
+RefundSource, RefundDealInfo, RefundAuthorizationDetails, PayoutDestination,
+PayoutCardData, PayoutDealInfo, PayoutSelfEmployedInfo, IncomeReceipt,
+ReceiptItemSupplier, IndustryDetails, OperationalDetails, MarkCodeInfo,
+MarkQuantity, LineItem, DeliveryMethod, InvoicePaymentDetails, PosLinkPayment,
+FiscalizationData, B2bSberbankVatData, ElectronicCertificate,
+ElectronicCertificatePayment, ElectronicCertificateApprovedPaymentArticle,
+ElectronicCertificateRefundArticle, ElectronicCertificateRefundData.
+
+Nested objects are typed: payment.payment_method.card is BankCardData,
+payment.deal is PaymentDealInfo with settlements, refund.refund_method is
+RefundMethod, payout.payout_destination is PayoutDestination, and a receipt
+item's supplier, mark_code_info and mark_quantity are models too. The full map:
+docs/examples/en/15-models.md.
+
+A payment method is parsed into the model of its own type:
+PaymentMethodBankCard, PaymentMethodYooMoney, PaymentMethodSberbank,
+PaymentMethodSberLoan, PaymentMethodSberBnpl, PaymentMethodB2bSberbank,
+PaymentMethodTinkoffBank, PaymentMethodAlfabank, PaymentMethodAlfaPay,
+PaymentMethodSbp, PaymentMethodElectronicCertificate,
+PaymentMethodInstallments, PaymentMethodCash, PaymentMethodMobileBalance,
+PaymentMethodQiwi, PaymentMethodWebmoney, PaymentMethodWeChat,
+PaymentMethodApplePay, PaymentMethodGooglePay. All inherit PaymentMethod, tell
+them apart with isinstance. Three carry fields of their own: sber_loan
+(loan_option, discount_amount, suspended_until), electronic_certificate
+(electronic_certificate, articles), b2b_sberbank (payment_purpose, vat_data).
+An unknown type is parsed into the base PaymentMethod.
 
 ## An endpoint the library does not have
 

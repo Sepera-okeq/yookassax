@@ -6,6 +6,7 @@ present: subscriptions, recurring payments, one-click checkout.
 * [Saving a payment method](#saving-a-payment-method)
 * [Saving during the first payment](#saving-during-the-first-payment)
 * [Payment method details](#payment-method-details)
+* [Payment method types](#payment-method-types)
 * [Charging a saved method](#charging-a-saved-method)
 
 Recurring payments must be enabled for the shop. Otherwise YooKassa answers 403
@@ -84,6 +85,64 @@ method.saved
 method.title     # for example "Bank card *4444"
 method.card      # masked number, expiry, issuer
 ```
+
+## Payment method types
+
+A payment method is parsed into the model of its own type, so type-specific
+fields are available directly, without digging into `raw`.
+
+```python
+from yookassax import (
+    PaymentMethodBankCard,
+    PaymentMethodElectronicCertificate,
+    PaymentMethodSberLoan,
+)
+
+payment = kassa.payments.get(payment_id)
+method = payment.payment_method
+
+if isinstance(method, PaymentMethodBankCard):
+    print(method.card["last4"])
+
+elif isinstance(method, PaymentMethodSberLoan):
+    print(method.loan_option)        # loan, installments_3 and the like
+    print(method.discount_amount)    # the instalment discount
+    print(method.suspended_until)    # end of the cooling-off period
+
+elif isinstance(method, PaymentMethodElectronicCertificate):
+    print(method.articles)           # the basket approved for payment
+```
+
+All 19 types from the specification:
+
+| Model | `type` |
+|---|---|
+| `PaymentMethodBankCard` | `bank_card` |
+| `PaymentMethodYooMoney` | `yoo_money` |
+| `PaymentMethodSberbank` | `sberbank` |
+| `PaymentMethodSberLoan` | `sber_loan` |
+| `PaymentMethodSberBnpl` | `sber_bnpl` |
+| `PaymentMethodB2bSberbank` | `b2b_sberbank` |
+| `PaymentMethodTinkoffBank` | `tinkoff_bank` |
+| `PaymentMethodAlfabank` | `alfabank` |
+| `PaymentMethodAlfaPay` | `alfa_pay` |
+| `PaymentMethodSbp` | `sbp` |
+| `PaymentMethodElectronicCertificate` | `electronic_certificate` |
+| `PaymentMethodInstallments` | `installments` |
+| `PaymentMethodCash` | `cash` |
+| `PaymentMethodMobileBalance` | `mobile_balance` |
+| `PaymentMethodQiwi` | `qiwi` |
+| `PaymentMethodWebmoney` | `webmoney` |
+| `PaymentMethodWeChat` | `wechat` |
+| `PaymentMethodApplePay` | `apple_pay` |
+| `PaymentMethodGooglePay` | `google_pay` |
+
+Three types carry fields of their own: `sber_loan`, `electronic_certificate`
+and `b2b_sberbank`. The rest only have the common ones in the specification, so
+their models are empty - they exist for `isinstance` and editor hints.
+
+A type the library does not know yet is parsed into the base `PaymentMethod`: a
+new payment method must not break parsing of the payment.
 
 ## Charging a saved method
 
