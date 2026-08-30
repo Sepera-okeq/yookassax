@@ -276,6 +276,14 @@ ruff check .
 mypy src
 ```
 
+The tests do not go over the network. There is a separate run against the live
+API; it needs test shop credentials and is skipped without them:
+
+```bash
+export YOOKASSA_SHOP_ID=... YOOKASSA_SECRET_KEY=test_...
+pytest tests/integration
+```
+
 ## License
 
 MIT.

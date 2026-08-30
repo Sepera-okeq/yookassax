@@ -272,6 +272,14 @@ ruff check .
 mypy src
 ```
 
+Тесты не ходят в сеть. Отдельно есть прогон по живому API, он требует ключи
+тестового магазина и без них пропускается:
+
+```bash
+export YOOKASSA_SHOP_ID=... YOOKASSA_SECRET_KEY=test_...
+pytest tests/integration
+```
+
 ## Лицензия
 
 MIT.
