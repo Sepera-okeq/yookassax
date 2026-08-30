@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from ..models import Deal, Payment, Payout, Refund
+from ..models import Deal, Payment, PaymentMethod, Payout, Refund
 from ..models.base import ModelClass
 
 __all__ = ["EVENTS", "Notification", "parse"]
@@ -20,6 +20,9 @@ EVENTS: tuple[str, ...] = (
     "payout.succeeded",
     "payout.canceled",
     "deal.closed",
+    # Привязка способа оплаты на нулевую сумму: приходит, когда способ
+    # сохранён и по нему можно списывать.
+    "payment_method.active",
 )
 
 # Первая часть события определяет тип объекта в теле.
@@ -28,6 +31,7 @@ _MODEL_BY_OBJECT_TYPE: dict[str, ModelClass] = {
     "refund": Refund,
     "payout": Payout,
     "deal": Deal,
+    "payment_method": PaymentMethod,
 }
 
 
@@ -42,7 +46,7 @@ class Notification:
 
     @property
     def object_type(self) -> str:
-        """Тип объекта: payment, refund, payout или deal."""
+        """Тип объекта: payment, refund, payout, deal или payment_method."""
         return self.event.split(".", 1)[0]
 
     @property
@@ -59,6 +63,11 @@ class Notification:
     def is_refund_succeeded(self) -> bool:
         """Возврат прошёл."""
         return self.event == "refund.succeeded"
+
+    @property
+    def is_payment_method_active(self) -> bool:
+        """Способ оплаты привязан, по нему можно списывать."""
+        return self.event == "payment_method.active"
 
 
 def parse(payload: Mapping[str, Any]) -> Notification:
