@@ -2,6 +2,9 @@
 
 [Русский](../ru/README.md) | English, [back to the library overview](../../../README.en.md)
 
+Examples for yookassax, an unofficial library: the project is not affiliated
+with YooKassa or YooMoney and is not supported by them.
+
 Every scenario is shown in both modes: synchronous and asynchronous. The only
 difference between them is `await`; the method sets are identical.
 

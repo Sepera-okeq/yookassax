@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "yookassax"
 dynamic = ["version"]
-description = "Клиент ЮKassa для Python: синхронный и асинхронный, типизированные модели, вебхуки и идемпотентность из коробки"
+description = "Неофициальный клиент ЮKassa для Python: синхронный и асинхронный, типизированные модели, вебхуки и идемпотентность из коробки"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"

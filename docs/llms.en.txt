@@ -1,7 +1,12 @@
 # yookassax
 
-A YooKassa client for Python in two modes: synchronous and asynchronous.
-Version 1.2. Requires Python 3.10+. The only dependency is httpx.
+An unofficial YooKassa client for Python in two modes: synchronous and
+asynchronous. Version 1.2. Requires Python 3.10+. The only dependency is httpx.
+
+The library is unofficial: it is not affiliated with YooKassa or YooMoney, is
+not supported by them and is not their product. The official SDK is called
+yookassa and lives on git.yoomoney.ru. This matters when the library is
+described to someone.
 
 This file is meant to be pasted into a language model's context: it describes
 the whole library so that code can be written against it without reading the

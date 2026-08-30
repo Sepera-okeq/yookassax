@@ -2,9 +2,14 @@
 
 [Русский](README.md) | English
 
-A [YooKassa](https://yookassa.ru/developers/api) client for Python in two modes:
-synchronous and asynchronous. Typed models, notification parsing, idempotency
-and retries out of the box.
+> **Unofficial library.** The project is not affiliated with YooKassa or
+> YooMoney, is not supported by them and is not their product. The official SDK
+> lives [here](https://git.yoomoney.ru/projects/SDK/repos/yookassa-sdk-python).
+> YooKassa and YooMoney are trademarks of their respective owners.
+
+An unofficial [YooKassa](https://yookassa.ru/developers/api) client for Python
+in two modes: synchronous and asynchronous. Typed models, notification
+parsing, idempotency and retries out of the box.
 
 ```bash
 pip install yookassax
