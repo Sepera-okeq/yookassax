@@ -1,0 +1,134 @@
+"""yookassax: клиент ЮKassa для Python в двух режимах.
+
+Быстрый старт, синхронно:
+
+    from yookassax import YooKassa
+
+    with YooKassa(shop_id="123456", secret_key="live_...") as kassa:
+        payment = kassa.payments.create({
+            "amount": {"value": "100.00", "currency": "RUB"},
+            "confirmation": {
+                "type": "redirect",
+                "return_url": "https://example.com/done",
+            },
+            "capture": True,
+            "description": "Заказ 42",
+        })
+        print(payment.confirmation_url)
+
+То же самое асинхронно:
+
+    from yookassax import AsyncYooKassa
+
+    async with AsyncYooKassa(shop_id="123456", secret_key="live_...") as kassa:
+        payment = await kassa.payments.create({...})
+
+Чем отличается от официального SDK:
+
+Ключи хранятся в экземпляре клиента, а не на классе. Официальный SDK держит их
+в Configuration на уровне класса, поэтому при работе с несколькими магазинами
+из одного процесса два платежа могут переписать токен друг другу и платёж
+уйдёт через чужой магазин.
+
+Асинхронный режим настоящий. Официальный SDK синхронный, внутри requests, и
+вызов из асинхронного обработчика останавливает весь воркер.
+
+Ключ идемпотентности проставляется автоматически на всех изменяющих запросах,
+а повторы после обрыва идут с тем же ключом, поэтому второго платежа не
+возникает.
+
+Повторы на кодах 202, 429 и 500 с экспоненциальной паузой.
+
+Модели типизированы и терпимы к новым полям API: неизвестное складывается в
+raw и доступно через метод extra.
+"""
+
+from . import webhooks
+from ._version import __version__
+from .clients import AsyncYooKassa, YooKassa
+from .errors import (
+    APIError,
+    BadRequest,
+    ConfigurationError,
+    Forbidden,
+    Gone,
+    NotFound,
+    RateLimited,
+    ResponseProcessing,
+    ServerError,
+    TransportError,
+    Unauthorized,
+    YooKassaError,
+)
+from .models import (
+    Amount,
+    AuthorizationDetails,
+    CancellationDetails,
+    Confirmation,
+    Deal,
+    Invoice,
+    Me,
+    Page,
+    Payment,
+    PaymentMethod,
+    Payout,
+    PersonalData,
+    PosLink,
+    Receipt,
+    ReceiptItem,
+    Recipient,
+    Refund,
+    SbpBank,
+    SelfEmployed,
+    Transfer,
+    Webhook,
+)
+from .operation import Operation
+from .retry import RetryPolicy
+
+__all__ = [
+    "__version__",
+    # клиенты
+    "AsyncYooKassa",
+    "YooKassa",
+    # уведомления
+    "webhooks",
+    # ошибки
+    "APIError",
+    "BadRequest",
+    "ConfigurationError",
+    "Forbidden",
+    "Gone",
+    "NotFound",
+    "RateLimited",
+    "ResponseProcessing",
+    "ServerError",
+    "TransportError",
+    "Unauthorized",
+    "YooKassaError",
+    # модели
+    "Amount",
+    "AuthorizationDetails",
+    "CancellationDetails",
+    "Confirmation",
+    "Deal",
+    "Invoice",
+    "Me",
+    "Page",
+    "Payment",
+    "PaymentMethod",
+    "Payout",
+    "PersonalData",
+    "PosLink",
+    "Receipt",
+    "ReceiptItem",
+    "Recipient",
+    "Refund",
+    "SbpBank",
+    "SelfEmployed",
+    "Transfer",
+    "Webhook",
+    # расширение
+    "Operation",
+    "RetryPolicy",
+]
