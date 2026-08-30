@@ -78,9 +78,16 @@ class CancellationDetails(Model):
 
 @dataclass(slots=True)
 class ThreeDSecureDetails(Model):
-    """Прошла ли аутентификация 3-D Secure."""
+    """Аутентификация 3-D Secure.
+
+    Три последних поля API отдаёт, но в спецификации их нет: нашлись на живых
+    платежах. Спецификация отстаёт от API, поэтому сверки с ней мало.
+    """
 
     applied: bool | None = None
+    protocol: str | None = None
+    method_completed: bool | None = None
+    challenge_completed: bool | None = None
 
 
 @dataclass(slots=True)
