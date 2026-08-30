@@ -1,0 +1,75 @@
+# Публикация на PyPI по тегу вида v1.2.
+#
+# Токен нигде не хранится: PyPI доверяет этому workflow по OIDC (доверенная
+# публикация). Настраивается один раз на pypi.org, в разделе Publishing:
+# владелец Sepera-okeq, репозиторий yookassax, файл release.yml, окружение pypi.
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установить зависимости
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" build
+
+      # Версию нельзя перезалить, поэтому расхождение тега и пакета ловим до
+      # сборки: иначе тег v1.2 опубликует что-нибудь другое, и это навсегда.
+      - name: Сверить тег с версией пакета
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(python -c "import yookassax; print(yookassax.__version__)")
+          if [ "$tag" != "$version" ]; then
+            echo "тег $tag, а версия пакета $version"
+            exit 1
+          fi
+
+      - name: Тесты
+        run: pytest -q
+
+      - name: Проверки
+        run: |
+          ruff check .
+          mypy src
+
+      - name: Собрать пакет
+        run: python -m build
+
+      # twine check смотрит, отрендерится ли README на странице пакета.
+      - name: Проверить пакет
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # Право выпустить OIDC-токен, которым PyPI опознаёт этот workflow.
+      # Без него доверенная публикация не работает.
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
