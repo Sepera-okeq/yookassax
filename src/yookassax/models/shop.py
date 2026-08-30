@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from .base import Model, ModelClass
 from .common import Amount
 
-__all__ = ["Me", "Webhook"]
+__all__ = ["FiscalizationData", "Me", "Webhook"]
+
+
+@dataclass(slots=True)
+class FiscalizationData(Model):
+    """Настройки отправки чеков в налоговую."""
+
+    enabled: bool | None = None
+    provider: str | None = None
 
 
 @dataclass(slots=True)
@@ -23,7 +31,7 @@ class Me(Model):
     account_id: str | None = None
     status: str | None = None
     test: bool | None = None
-    fiscalization: dict[str, Any] | None = None
+    fiscalization: FiscalizationData | None = None
     fiscalization_enabled: bool | None = None
     payment_methods: list[str] | None = None
     payout_methods: list[str] | None = None
@@ -31,7 +39,10 @@ class Me(Model):
     name: str | None = None
     payout_balance: Amount | None = None
 
-    nested_models: ClassVar[dict[str, ModelClass]] = {"payout_balance": Amount}
+    nested_models: ClassVar[dict[str, ModelClass]] = {
+        "payout_balance": Amount,
+        "fiscalization": FiscalizationData,
+    }
 
 
 @dataclass(slots=True)

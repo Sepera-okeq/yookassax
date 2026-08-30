@@ -11,9 +11,14 @@ from .base import Model, ModelClass
 __all__ = [
     "Amount",
     "AuthorizationDetails",
+    "BankCardData",
+    "BankCardProduct",
     "CancellationDetails",
     "Confirmation",
+    "PayerBankDetails",
     "Recipient",
+    "Settlement",
+    "ThreeDSecureDetails",
     "Transfer",
 ]
 
@@ -72,12 +77,83 @@ class CancellationDetails(Model):
 
 
 @dataclass(slots=True)
+class ThreeDSecureDetails(Model):
+    """Прошла ли аутентификация 3-D Secure."""
+
+    applied: bool | None = None
+
+
+@dataclass(slots=True)
+class BankCardProduct(Model):
+    """Карточный продукт платёжной системы, например Mir Supreme."""
+
+    code: str | None = None
+    name: str | None = None
+
+
+@dataclass(slots=True)
+class BankCardData(Model):
+    """Данные банковской карты.
+
+    Номер карты целиком не приходит никогда: только первые шесть и последние
+    четыре цифры.
+    """
+
+    first6: str | None = None
+    last4: str | None = None
+    expiry_month: str | None = None
+    expiry_year: str | None = None
+    card_type: str | None = None
+    card_product: BankCardProduct | None = None
+    issuer_country: str | None = None
+    issuer_name: str | None = None
+    source: str | None = None
+
+    nested_models: ClassVar[dict[str, ModelClass]] = {"card_product": BankCardProduct}
+
+
+@dataclass(slots=True)
+class PayerBankDetails(Model):
+    """Реквизиты счёта плательщика.
+
+    Набор полей зависит от способа оплаты: у СБП это bank_id и bic, у оплаты
+    по счёту от юридического лица - полные банковские реквизиты.
+    """
+
+    bank_id: str | None = None
+    bic: str | None = None
+    account: str | None = None
+    bank_bik: str | None = None
+    bank_branch: str | None = None
+    bank_name: str | None = None
+    full_name: str | None = None
+    short_name: str | None = None
+    address: str | None = None
+    inn: str | None = None
+    kpp: str | None = None
+
+
+@dataclass(slots=True)
+class Settlement(Model):
+    """Расчёт: сколько и на что распределено внутри операции."""
+
+    type: str | None = None
+    amount: Amount | None = None
+
+    nested_models: ClassVar[dict[str, ModelClass]] = {"amount": Amount}
+
+
+@dataclass(slots=True)
 class AuthorizationDetails(Model):
     """Данные авторизации карточного платежа."""
 
     rrn: str | None = None
     auth_code: str | None = None
-    three_d_secure: dict[str, Any] | None = None
+    three_d_secure: ThreeDSecureDetails | None = None
+
+    nested_models: ClassVar[dict[str, ModelClass]] = {
+        "three_d_secure": ThreeDSecureDetails,
+    }
 
 
 @dataclass(slots=True)
