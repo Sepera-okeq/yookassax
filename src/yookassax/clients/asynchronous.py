@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from typing import Any
 
 import httpx
 
-from .. import resources
+from .. import logs, resources
 from ..errors import TransportError
 from ..operation import Operation
 from ..retry import should_retry
@@ -67,6 +68,10 @@ class AsyncYooKassa(BaseClient):
         last_error: Exception | None = None
 
         for attempt in range(1, self._retry.attempts + 1):
+            logs.log_request(
+                request.method, request.path, request.headers, request.body
+            )
+            started = time.monotonic()
             try:
                 response = await self._http.request(
                     request.method,
@@ -79,19 +84,38 @@ class AsyncYooKassa(BaseClient):
                 # Ответа нет вообще, состояние операции неизвестно. Повторять
                 # можно: ключ идемпотентности в заголовках тот же, поэтому
                 # второго платежа не возникнет.
+                logs.log_transport_error(
+                    request.method, request.path, attempt, str(exc)
+                )
                 last_error = TransportError(f"Запрос к ЮKassa не удался: {exc}")
                 if attempt < self._retry.attempts:
-                    await asyncio.sleep(self._retry.delay(attempt))
+                    delay = self._retry.delay(attempt)
+                    logs.log_retry(
+                        request.method, request.path, attempt, delay, "нет ответа"
+                    )
+                    await asyncio.sleep(delay)
                     continue
                 raise last_error from exc
 
+            payload = read_json(response)
+            logs.log_response(
+                request.method,
+                request.path,
+                response.status_code,
+                time.monotonic() - started,
+                payload,
+                attempt,
+            )
             try:
-                payload = parse_response(response.status_code, read_json(response))
-                return operation.parse(payload)
+                return operation.parse(parse_response(response.status_code, payload))
             except Exception as exc:
                 last_error = exc
                 if should_retry(exc) and attempt < self._retry.attempts:
-                    await asyncio.sleep(self._retry.delay(attempt))
+                    delay = self._retry.delay(attempt)
+                    logs.log_retry(
+                        request.method, request.path, attempt, delay, type(exc).__name__
+                    )
+                    await asyncio.sleep(delay)
                     continue
                 raise
 
