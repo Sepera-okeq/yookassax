@@ -10,13 +10,14 @@ change_recipient, а путь в API просто /recipient.
 
 from __future__ import annotations
 
+import dataclasses
 import inspect
 import re
 from pathlib import Path
 
 import pytest
 
-from yookassax import operations
+from yookassax import models, operations
 
 SPEC_PATH = Path(__file__).resolve().parents[1] / "docs" / "yookassa-openapi.yaml"
 
@@ -89,3 +90,29 @@ def test_library_has_no_unknown_routes():
         f"{method} {path} ({library[(method, path)]})"
         for method, path in sorted(unknown)
     )
+
+
+@pytest.mark.skipif(not SPEC_PATH.exists(), reason="спецификация не приложена")
+def test_models_cover_documented_fields():
+    """Поле из спецификации обязано быть в модели.
+
+    Иначе разбор ответа выдаст UnknownFieldWarning на поле, которое ЮKassa
+    документирует давно, и предупреждение перестанет что-либо значить: его
+    начнут глушить фильтром вместе с настоящими новыми полями.
+    """
+    yaml = pytest.importorskip("yaml", reason="для теста нужен pyyaml")
+    schemas = yaml.safe_load(SPEC_PATH.read_text(encoding="utf-8"))["components"][
+        "schemas"
+    ]
+
+    gaps = []
+    for name in models.__all__:
+        model = getattr(models, name)
+        if not dataclasses.is_dataclass(model) or name not in schemas:
+            continue
+
+        known = {f.name for f in dataclasses.fields(model)} - {"raw"}
+        for missing in sorted(set(schemas[name].get("properties", {})) - known):
+            gaps.append(f"{name}.{missing}")
+
+    assert not gaps, "поля из спецификации не описаны моделями: " + ", ".join(gaps)
